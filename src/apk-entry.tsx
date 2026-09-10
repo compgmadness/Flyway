@@ -8,6 +8,43 @@ import type { AppPage } from "@/components/app-chrome";
 import { loadLastPage, saveLastPage } from "@/lib/flyway/community-local";
 import "./styles.css";
 
+type Insets = { top: number; bottom: number; left: number; right: number };
+
+declare global {
+  interface Window {
+    FlywayChrome?: { insets: () => string };
+    __FLYWAY_INSETS__?: Insets;
+    __FLYWAY_APPLY_INSETS__?: (top: number, bottom: number, left: number, right: number) => void;
+  }
+}
+
+function applyInsets(top = 0, bottom = 0, left = 0, right = 0) {
+  const root = document.documentElement.style;
+  root.setProperty("--flyway-inset-top", `${top}px`);
+  root.setProperty("--flyway-inset-bottom", `${bottom}px`);
+  root.setProperty("--flyway-inset-left", `${left}px`);
+  root.setProperty("--flyway-inset-right", `${right}px`);
+}
+
+function readNativeInsets(): Insets | null {
+  try {
+    const raw = window.FlywayChrome?.insets?.();
+    if (raw) return JSON.parse(raw) as Insets;
+  } catch {
+    /* bridge not ready */
+  }
+  return window.__FLYWAY_INSETS__ ?? null;
+}
+
+function syncNativeInsets() {
+  const next = readNativeInsets();
+  if (!next) return;
+  applyInsets(next.top || 0, next.bottom || 0, next.left || 0, next.right || 0);
+}
+
+window.__FLYWAY_APPLY_INSETS__ = applyInsets;
+syncNativeInsets();
+
 function readPage(): AppPage {
   if (typeof window === "undefined") return "brief";
   if (window.location.hash === "#id") return "id";
@@ -33,6 +70,9 @@ function ApkApp() {
 function mount() {
   const root = document.getElementById("root");
   if (!root) throw new Error("Flyway root missing");
+  syncNativeInsets();
+  window.addEventListener("resize", syncNativeInsets);
+  window.visualViewport?.addEventListener("resize", syncNativeInsets);
   createRoot(root).render(
     <AppProviders>
       <ApkApp />

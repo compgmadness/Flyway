@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowInsets;
 import android.view.WindowManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.CookieManager;
 import android.webkit.GeolocationPermissions;
 import android.webkit.ValueCallback;
@@ -81,6 +83,7 @@ public class MainActivity extends Activity {
         store = new FlywayStore(this);
         webView.addJavascriptInterface(store, "FlywayStore");
         webView.addJavascriptInterface(new FlywayNotify(this), "FlywayNotify");
+        webView.addJavascriptInterface(new ChromeBridge(), "FlywayChrome");
 
         webView.setWebViewClient(new WebViewClient() {
             @Override
@@ -100,6 +103,11 @@ public class MainActivity extends Activity {
                 String scheme = uri.getScheme();
                 if (HOST.equals(host)) return false;
                 return !(scheme != null && (scheme.equals("https") || scheme.equals("http")));
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                pushInsetsToWeb();
             }
         });
 
@@ -202,7 +210,10 @@ public class MainActivity extends Activity {
             boot = store.dumpJson();
         }
         boot = boot.replace("<", "\\u003c");
-        String tag = "<script>window.__FLYWAY_BOOT__=" + boot + ";</script>";
+        String insets = insetsCssJson();
+        String tag = insetsStyleTag()
+                + "<script>window.__FLYWAY_BOOT__=" + boot
+                + ";window.__FLYWAY_INSETS__=" + insets + ";</script>";
         int head = html.indexOf("</head>");
         if (head >= 0) {
             return html.substring(0, head) + tag + html.substring(head);
@@ -227,11 +238,12 @@ public class MainActivity extends Activity {
         window.setBackgroundDrawable(new ColorDrawable(bg));
         if (Build.VERSION.SDK_INT >= 21) {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(bg);
-            window.setNavigationBarColor(bg);
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.setStatusBarColor(Color.TRANSPARENT);
+            window.setNavigationBarColor(Color.TRANSPARENT);
         }
         if (Build.VERSION.SDK_INT >= 30) {
-            window.setDecorFitsSystemWindows(true);
+            window.setDecorFitsSystemWindows(false);
             window.setStatusBarContrastEnforced(false);
             window.setNavigationBarContrastEnforced(false);
         }
@@ -242,41 +254,155 @@ public class MainActivity extends Activity {
             window.setAttributes(lp);
         }
         if (Build.VERSION.SDK_INT >= 23) {
-            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            window.getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
         }
     }
 
     private void fitWebViewToSystemBars(final WebView view) {
-        view.setFitsSystemWindows(true);
-        if (Build.VERSION.SDK_INT < 20) return;
-        view.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+        view.setFitsSystemWindows(false);
+        view.setPadding(0, 0, 0, 0);
+        view.setInitialScale(100);
+        if (Build.VERSION.SDK_INT >= 20) {
+            view.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+                @Override
+                public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
+                    pushInsetsToWeb();
+                    return insets;
+                }
+            });
+            view.requestApplyInsets();
+        }
+        pushInsetsToWeb();
+    }
+
+    private int[] measureInsetPx() {
+        int left = 0;
+        int top = 0;
+        int right = 0;
+        int bottom = 0;
+        int sbId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (sbId > 0) {
+            top = getResources().getDimensionPixelSize(sbId);
+        }
+        try {
+            if (Build.VERSION.SDK_INT >= 30) {
+                android.view.WindowMetrics metrics = getWindowManager().getCurrentWindowMetrics();
+                android.graphics.Insets bars = metrics.getWindowInsets().getInsetsIgnoringVisibility(
+                        WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
+                left = Math.max(left, bars.left);
+                top = Math.max(top, bars.top);
+                right = Math.max(right, bars.right);
+                bottom = Math.max(bottom, bars.bottom);
+            } else {
+                WindowInsets wi = getWindow().getDecorView().getRootWindowInsets();
+                if (wi != null) {
+                    left = Math.max(left, wi.getSystemWindowInsetLeft());
+                    top = Math.max(top, wi.getSystemWindowInsetTop());
+                    right = Math.max(right, wi.getSystemWindowInsetRight());
+                    bottom = Math.max(bottom, wi.getSystemWindowInsetBottom());
+                    if (Build.VERSION.SDK_INT >= 28 && wi.getDisplayCutout() != null) {
+                        top = Math.max(top, wi.getDisplayCutout().getSafeInsetTop());
+                        left = Math.max(left, wi.getDisplayCutout().getSafeInsetLeft());
+                        right = Math.max(right, wi.getDisplayCutout().getSafeInsetRight());
+                        bottom = Math.max(bottom, wi.getDisplayCutout().getSafeInsetBottom());
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+            // fall through to resource / minimum
+        }
+        float density = getResources().getDisplayMetrics().density;
+        int minTop = Math.round(Math.max(density, 1f) * 24f);
+        if (top < minTop) top = minTop;
+        return new int[] { left, top, right, bottom };
+    }
+
+    private float[] insetsCssPx() {
+        float density = getResources().getDisplayMetrics().density;
+        if (density <= 0f) density = 3f;
+        int[] px = measureInsetPx();
+        return new float[] {
+            px[0] / density,
+            px[1] / density,
+            px[2] / density,
+            px[3] / density
+        };
+    }
+
+    private String fmt(float value) {
+        return String.format(java.util.Locale.US, "%.1f", value);
+    }
+
+    String insetsCssJson() {
+        float[] i = insetsCssPx();
+        return "{\"left\":" + fmt(i[0])
+                + ",\"top\":" + fmt(i[1])
+                + ",\"right\":" + fmt(i[2])
+                + ",\"bottom\":" + fmt(i[3]) + "}";
+    }
+
+    private String insetsStyleTag() {
+        float[] i = insetsCssPx();
+        return "<style id=\"flyway-insets\">:root{--flyway-inset-top:"
+                + fmt(i[1]) + "px;--flyway-inset-bottom:"
+                + fmt(i[3]) + "px;--flyway-inset-left:"
+                + fmt(i[0]) + "px;--flyway-inset-right:"
+                + fmt(i[2]) + "px;}</style>";
+    }
+
+    private void pushInsetsToWeb() {
+        if (webView == null) return;
+        final String json = insetsCssJson();
+        final float[] i = insetsCssPx();
+        final String js =
+                "window.__FLYWAY_INSETS__=" + json + ";"
+                + "(function(t,b,l,r){"
+                + "var rEl=document.documentElement;if(!rEl||!rEl.style)return;"
+                + "rEl.style.setProperty('--flyway-inset-top',t+'px');"
+                + "rEl.style.setProperty('--flyway-inset-bottom',b+'px');"
+                + "rEl.style.setProperty('--flyway-inset-left',l+'px');"
+                + "rEl.style.setProperty('--flyway-inset-right',r+'px');"
+                + "if(window.__FLYWAY_APPLY_INSETS__)window.__FLYWAY_APPLY_INSETS__(t,b,l,r);"
+                + "})(" + fmt(i[1]) + "," + fmt(i[3]) + "," + fmt(i[0]) + "," + fmt(i[2]) + ");";
+        webView.post(new Runnable() {
             @Override
-            public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
-                int top;
-                int bottom;
-                int left;
-                int right;
-                if (Build.VERSION.SDK_INT >= 30) {
-                    android.graphics.Insets bars = insets.getInsets(
-                            WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
-                    top = bars.top;
-                    bottom = bars.bottom;
-                    left = bars.left;
-                    right = bars.right;
+            public void run() {
+                if (Build.VERSION.SDK_INT >= 19) {
+                    webView.evaluateJavascript(js, null);
                 } else {
-                    top = insets.getSystemWindowInsetTop();
-                    bottom = insets.getSystemWindowInsetBottom();
-                    left = insets.getSystemWindowInsetLeft();
-                    right = insets.getSystemWindowInsetRight();
+                    webView.loadUrl("javascript:" + js);
                 }
-                v.setPadding(left, top, right, bottom);
-                if (Build.VERSION.SDK_INT >= 30) {
-                    return WindowInsets.CONSUMED;
-                }
-                return insets.consumeSystemWindowInsets();
             }
         });
-        view.requestApplyInsets();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) pushInsetsToWeb();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (webView != null) {
+            webView.post(new Runnable() {
+                @Override
+                public void run() {
+                    pushInsetsToWeb();
+                }
+            });
+        }
+    }
+
+    private class ChromeBridge {
+        @JavascriptInterface
+        public String insets() {
+            return insetsCssJson();
+        }
     }
 
     @Override
