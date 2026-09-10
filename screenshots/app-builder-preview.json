@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Flyway",
+      "hasCanvas": false,
+      "bodyTextLen": 4144,
+      "bodyTextHash": "650fb5ae582dc14625355a8d8b1496443f47e8f7475e20d9c95db91de0e0eace",
+      "bodyTextPrefix": "Flyway MIGRATION BRIEF Denver Colorado Sign in Get app Brief Bag",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Flyway",
+      "hasCanvas": false,
+      "bodyTextLen": 4128,
+      "bodyTextHash": "c710c6fc835366233b0dc87673429efa42cabe440a2d38233312e0aed1e8e5c2",
+      "bodyTextPrefix": "Flyway MIGRATION BRIEF Denver Colorado Brief Bag ID Community 44",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}

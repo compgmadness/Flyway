@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="flyway_bg">#ff0e1210</color>
+    <color name="flyway_icon_bg">#ff9aada0</color>
+</resources>
