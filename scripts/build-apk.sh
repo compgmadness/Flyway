@@ -18,6 +18,7 @@ node scripts/with-app-env.mjs vite build --config vite.apk.config.ts
 
 mkdir -p android/assets/www/id
 cp -R public/id/. android/assets/www/id/
+cp -f public/logo.png android/assets/www/logo.png
 
 if [[ -f android/assets/www/apk/index.html ]]; then
   mv android/assets/www/apk/index.html android/assets/www/index.html
@@ -56,79 +57,8 @@ print(html_file.read_text())
 PY
 
 echo "==> launcher icons"
-python3 - <<'PY'
-from pathlib import Path
-from PIL import Image, ImageDraw
-
-root = Path("android/res")
-sizes = {
-    "mipmap-mdpi": 48,
-    "mipmap-hdpi": 72,
-    "mipmap-xhdpi": 96,
-    "mipmap-xxhdpi": 144,
-    "mipmap-xxxhdpi": 192,
-}
-# Adaptive-icon foreground is 108dp; xxxhdpi = 432px
-fg_sizes = {
-    "mipmap-mdpi": 108,
-    "mipmap-hdpi": 162,
-    "mipmap-xhdpi": 216,
-    "mipmap-xxhdpi": 324,
-    "mipmap-xxxhdpi": 432,
-}
-SAGE = (154, 173, 160, 255)
-DARK = (14, 18, 16, 255)
-
-
-def flock(draw: ImageDraw.ImageDraw, size: float, fill, pad: float = 0.22) -> None:
-    # Keep the bird inside the adaptive safe zone (inner ~66%).
-    s = size
-    p = pad
-    draw.polygon(
-        [
-            (s * (p + 0.02), s * 0.62),
-            (s * 0.42, s * (p + 0.12)),
-            (s * 0.50, s * 0.50),
-            (s * 0.58, s * (p + 0.12)),
-            (s * (1 - p - 0.02), s * 0.62),
-            (s * 0.58, s * 0.54),
-            (s * 0.50, s * (1 - p)),
-            (s * 0.42, s * 0.54),
-        ],
-        fill=fill,
-    )
-
-
-def square_icon(size: int) -> Image.Image:
-    img = Image.new("RGBA", (size, size), SAGE)
-    d = ImageDraw.Draw(img)
-    flock(d, size, DARK, pad=0.20)
-    return img
-
-
-def round_icon(size: int) -> Image.Image:
-    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    d = ImageDraw.Draw(img)
-    d.ellipse((1, 1, size - 2, size - 2), fill=SAGE)
-    flock(d, size, DARK, pad=0.22)
-    return img
-
-
-def foreground(size: int) -> Image.Image:
-    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
-    d = ImageDraw.Draw(img)
-    flock(d, size, DARK, pad=0.28)
-    return img
-
-
-for folder, size in sizes.items():
-    dest = root / folder
-    dest.mkdir(parents=True, exist_ok=True)
-    square_icon(size).save(dest / "ic_launcher.png", "PNG")
-    round_icon(size).save(dest / "ic_launcher_round.png", "PNG")
-    foreground(fg_sizes[folder]).save(dest / "ic_launcher_foreground.png", "PNG")
-print("icons written")
-PY
+python3 scripts/apply-brand-icons.py
+rm -f android/res/drawable/ic_notify.xml
 
 WORKDIR="${TMPDIR:-/tmp}/flyway-apk-build"
 rm -rf "$WORKDIR"

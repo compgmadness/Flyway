@@ -61,33 +61,9 @@ html_file.write_text(html)
 print(f"rewrote {html_file}")
 PY
 
-# reuse icon generation from build-apk
-bash -c 'source /dev/null'
-python3 - <<'PY'
-from pathlib import Path
-from PIL import Image, ImageDraw
-root = Path("android/res")
-sizes = {"mipmap-mdpi": 48, "mipmap-hdpi": 72, "mipmap-xhdpi": 96, "mipmap-xxhdpi": 144, "mipmap-xxxhdpi": 192}
-fg_sizes = {"mipmap-mdpi": 108, "mipmap-hdpi": 162, "mipmap-xhdpi": 216, "mipmap-xxhdpi": 324, "mipmap-xxxhdpi": 432}
-SAGE = (154, 173, 160, 255)
-DARK = (14, 18, 16, 255)
-def flock(draw, size, fill, pad=0.22):
-    s = size; p = pad
-    draw.polygon([(s*(p+0.02), s*0.62),(s*0.42, s*(p+0.12)),(s*0.50, s*0.50),(s*0.58, s*(p+0.12)),(s*(1-p-0.02), s*0.62),(s*0.58, s*0.54),(s*0.50, s*(1-p)),(s*0.42, s*0.54)], fill=fill)
-for folder, size in sizes.items():
-    dest = root / folder
-    dest.mkdir(parents=True, exist_ok=True)
-    img = Image.new("RGBA", (size, size), SAGE)
-    d = ImageDraw.Draw(img); flock(d, size, DARK, 0.20)
-    img.save(dest / "ic_launcher.png", "PNG")
-    img2 = Image.new("RGBA", (size, size), (0,0,0,0)); d2 = ImageDraw.Draw(img2)
-    d2.ellipse((1,1,size-2,size-2), fill=SAGE); flock(d2, size, DARK, 0.22)
-    img2.save(dest / "ic_launcher_round.png", "PNG")
-    fg = Image.new("RGBA", (fg_sizes[folder], fg_sizes[folder]), (0,0,0,0))
-    flock(ImageDraw.Draw(fg), fg_sizes[folder], DARK, 0.28)
-    fg.save(dest / "ic_launcher_foreground.png", "PNG")
-print("icons written")
-PY
+echo "==> launcher icons"
+python3 scripts/apply-brand-icons.py
+rm -f android/res/drawable/ic_notify.xml
 
 echo "==> aapt2 proto-format"
 "$BT/aapt2" compile --dir android/res -o "$WORKDIR/compiled.flata"

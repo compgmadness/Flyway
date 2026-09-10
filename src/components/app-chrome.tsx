@@ -17,15 +17,16 @@ const SUBTITLE: Record<AppPage, string> = {
   community: "The lodge",
 };
 
-export function FlockMark() {
+export function FlockMark({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 32 32" className="size-8 text-sage sm:size-9" aria-hidden="true">
-      <rect width="32" height="32" rx="8" className="fill-elevated" />
-      <path
-        d="M6 21c5-9 8.5-11 9.2-4.2C16 10 19.5 12 26 21c-5-3.4-7.2-3.4-9.4.8C14.4 17.4 12.2 17.4 6 21z"
-        className="fill-sage"
-      />
-    </svg>
+    <img
+      src="/logo.png"
+      alt=""
+      width={40}
+      height={40}
+      className={cn("size-10 shrink-0 rounded-full sm:size-11", className)}
+      aria-hidden="true"
+    />
   );
 }
 
