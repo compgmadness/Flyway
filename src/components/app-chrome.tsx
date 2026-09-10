@@ -19,7 +19,7 @@ const SUBTITLE: Record<AppPage, string> = {
 
 export function FlockMark() {
   return (
-    <svg viewBox="0 0 32 32" className="size-9 text-sage" aria-hidden="true">
+    <svg viewBox="0 0 32 32" className="size-8 text-sage sm:size-9" aria-hidden="true">
       <rect width="32" height="32" rx="8" className="fill-elevated" />
       <path
         d="M6 21c5-9 8.5-11 9.2-4.2C16 10 19.5 12 26 21c-5-3.4-7.2-3.4-9.4.8C14.4 17.4 12.2 17.4 6 21z"
@@ -41,8 +41,8 @@ export function AppChrome({
   actions?: ReactNode;
 }) {
   return (
-    <header className="sticky top-0 z-20 border-b border-border bg-bg">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+    <header className="sticky top-0 z-20 border-b border-border bg-bg pt-[env(safe-area-inset-top,0px)]">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 py-2 sm:gap-3 sm:px-6 sm:py-3">
         <div className="flex min-w-0 items-center gap-3">
           <FlockMark />
           <div className="min-w-0">
@@ -65,7 +65,7 @@ export function AppChrome({
           )}
         </div>
       </div>
-      <nav className="mx-auto flex max-w-6xl gap-1 px-4 pb-3 sm:px-6">
+      <nav className="mx-auto flex max-w-6xl gap-1 px-3 pb-2 sm:px-6 sm:pb-3">
         <NavItem
           label="Brief"
           active={page === "brief"}
@@ -125,7 +125,7 @@ function NavItem({
   onClick: () => void;
 }) {
   const className = cn(
-    "inline-flex h-11 flex-1 items-center justify-center rounded-md text-sm font-medium transition-colors sm:flex-none sm:px-6",
+    "inline-flex h-10 flex-1 items-center justify-center rounded-md text-sm font-medium transition-colors sm:h-11 sm:flex-none sm:px-6",
     active ? "bg-sage text-sage-fg" : "bg-elevated text-fg hover:bg-elevated/80",
   );
   if (apk) {

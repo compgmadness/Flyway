@@ -48,10 +48,14 @@
     background: var(--color-bg);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: clip;
+    max-width: 100%;
   }
 
   body {
     min-height: 100dvh;
+    max-width: 100%;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     background-color: var(--color-bg);
     background-image: linear-gradient(
       180deg,

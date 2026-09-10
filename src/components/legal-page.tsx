@@ -14,7 +14,7 @@ function LegalShell({
 }) {
   return (
     <div className="min-h-dvh">
-      <header className="sticky top-0 z-20 border-b border-border bg-bg">
+      <header className="sticky top-0 z-20 border-b border-border bg-bg pt-[env(safe-area-inset-top,0px)]">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3 sm:px-6">
           <FlockMark />
           <div className="min-w-0">
