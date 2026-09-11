@@ -99,6 +99,14 @@ function readJson<T>(key: string, fallback: T): T {
   }
 }
 
+export function persistReadJson<T>(key: string, fallback: T): T {
+  return readJson(key, fallback);
+}
+
+export function persistWriteJson(key: string, value: unknown) {
+  writeJson(key, value);
+}
+
 function writeJson(key: string, value: unknown) {
   const payload = JSON.stringify(value);
   bootMap()[key] = payload;

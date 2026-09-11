@@ -17,6 +17,7 @@ import {
   type BirdMark,
   type BirdSize,
 } from "@/lib/flyway/id-guide";
+import { HarvestLogForm, RecentHarvests } from "@/components/harvest-log";
 import { cn } from "@/lib/utils";
 
 export function IdGuide({
@@ -71,10 +72,13 @@ export function IdGuide({
                 What did you shoot?
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted sm:text-base">
-                Work the bird in hand: family, size, then the mark that jumps out. This is a field
-                key, not a regs book — confirm limits for your unit.
+                Work the bird in hand: family, size, then the mark that jumps out. Log what you
+                shot — that bag feeds the brief for hunters south of you. This is a field key, not
+                a regs book.
               </p>
             </section>
+
+            <RecentHarvests />
 
             <section className="space-y-4">
               <Step label="1" title="Family">
@@ -232,6 +236,8 @@ function BirdDetail({
           ))}
         </ul>
       </section>
+
+      <HarvestLogForm bird={bird} />
 
       {bird.lookalikes.length ? (
         <section>

@@ -24,6 +24,7 @@ import { longDate, scoreTone } from "@/lib/flyway/scoring";
 import type { HuntBrief, HuntRating, Place } from "@/lib/flyway/types";
 import { loadNorthWatch } from "@/lib/flyway/push-watch";
 import { cn } from "@/lib/utils";
+import { applyHarvest, harvestsForPlace, subscribeHarvests } from "@/lib/flyway/harvest";
 
 const LOC_KEY = "flyway:location";
 const RECENTS_KEY = "flyway:recents";
@@ -113,6 +114,7 @@ export function Dashboard({
   const [pickerOpen, setPickerOpen] = useState(false);
   const [shareNote, setShareNote] = useState<string | null>(null);
   const [watching, setWatching] = useState(false);
+  const [harvestTick, setHarvestTick] = useState(0);
 
   useEffect(() => {
     const fromUrl = placeFromSearch(window.location.search);
@@ -133,6 +135,8 @@ export function Dashboard({
     window.addEventListener("flyway-watch-change", sync);
     return () => window.removeEventListener("flyway-watch-change", sync);
   }, []);
+
+  useEffect(() => subscribeHarvests(() => setHarvestTick((n) => n + 1)), []);
 
   const matchesInitial =
     !!initialBrief &&
@@ -229,7 +233,14 @@ export function Dashboard({
             onRetry={() => void brief.refetch()}
           />
         ) : null}
-        {brief.data ? <BriefView data={brief.data} extra={extra} onShare={() => void onShareSit()} /> : null}
+        {brief.data ? (
+          <BriefView
+            data={applyHarvest(brief.data)}
+            extra={extra}
+            onShare={() => void onShareSit()}
+            harvestTick={harvestTick}
+          />
+        ) : null}
       </main>
       {shareNote ? (
         <div className="fixed inset-x-0 bottom-4 z-50 flex justify-center px-4">
@@ -244,11 +255,17 @@ function BriefView({
   data,
   extra,
   onShare,
+  harvestTick = 0,
 }: {
   data: HuntBrief;
   extra?: (brief: HuntBrief) => ReactNode;
   onShare?: () => void;
+  harvestTick?: number;
 }) {
+  const bag = useMemo(
+    () => harvestsForPlace(data.location),
+    [data.location, harvestTick],
+  );
   const bestDay = useMemo(() => {
     return data.days.reduce(
       (best, day) => (day.score > best.score ? day : best),
@@ -383,6 +400,8 @@ function BriefView({
         </section>
       </div>
 
+      <HarvestFeed rows={bag} />
+
       <section>
         <div className="mb-3 flex items-end justify-between gap-3">
           <div>
@@ -442,7 +461,7 @@ function BriefView({
 
         <section className="rounded-2xl bg-surface p-4 shadow-border">
           <SectionKicker>Why this number</SectionKicker>
-          <h2 className="mt-1 font-display text-2xl text-fg">Weather model</h2>
+          <h2 className="mt-1 font-display text-2xl text-fg">Weather and the bag</h2>
           <ul className="mt-4 space-y-4">
             {data.score.factors.map((f) => (
               <li key={f.id}>
@@ -490,12 +509,50 @@ function BriefView({
 
       <footer className="border-t border-border pt-6 pb-10 text-xs leading-relaxed text-subtle">
         <p>
-          Hunt odds combine live weather (Open-Meteo), upflyway stations, moon phase, and typical
-          species calendars shifted for latitude. This is a field model, not a count of birds and
-          not legal advice. Check your state’s season, shooting hours, and bag limits before you go.
+          Hunt odds combine live weather (Open-Meteo), upflyway stations, moon phase, species
+          calendars, and bags logged in Bag ID. A harvest north of you can move this number.
+          Not a count of birds and not legal advice. Check season, shooting hours, and bag
+          limits before you go.
         </p>
       </footer>
     </div>
+  );
+}
+
+function HarvestFeed({
+  rows,
+}: {
+  rows: ReturnType<typeof harvestsForPlace>;
+}) {
+  return (
+    <section className="rounded-2xl bg-surface p-4 shadow-border">
+      <SectionKicker>Harvest-fed flyway</SectionKicker>
+      <h2 className="mt-1 font-display text-2xl text-fg">The bag upflyway</h2>
+      {rows.length === 0 ? (
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
+          Nobody has logged a bird on this corridor in the last 72 hours. ID what you shot in Bag
+          ID and put it on the flyway — hunters south of you get a smarter sit.
+        </p>
+      ) : (
+        <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {rows.slice(0, 6).map((row) => (
+            <li key={row.id} className="rounded-md bg-elevated px-3 py-3">
+              <p className="text-xs tracking-widest text-subtle uppercase">
+                {row.north ? `${row.milesNorth.toFixed(0)} mi north` : "On your marsh"}
+                {` · ${row.hoursAgo < 1 ? "just in" : `${row.hoursAgo.toFixed(0)}h ago`}`}
+              </p>
+              <p className="mt-1 text-sm text-fg">
+                {row.count} {row.birdName}
+                {row.sex !== "unknown" ? ` · ${row.sex}` : ""}
+              </p>
+              <p className="mt-1 text-xs text-muted">
+                {row.place.name} · {row.ice === "locked" ? "locked up" : row.ice === "skim" ? "skim ice" : "open water"}
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 

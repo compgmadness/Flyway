@@ -43,6 +43,7 @@ export function placeShareUrl(place: Place): string {
 }
 
 export const FEATURED_SPOTS: Place[] = [
+  { name: "Pueblo Reservoir", lat: 38.27, lon: -104.73, region: "Colorado" },
   { name: "Barr Lake", lat: 39.94, lon: -104.75, region: "Colorado" },
   { name: "South Platte — Fort Morgan", lat: 40.25, lon: -103.8, region: "Colorado" },
   { name: "Prewitt Reservoir", lat: 40.437, lon: -103.378, region: "Colorado" },
