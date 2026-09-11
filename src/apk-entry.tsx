@@ -6,6 +6,7 @@ import { IdGuide } from "@/components/id-guide";
 import { CommunityApkPage } from "@/components/community-apk";
 import type { AppPage } from "@/components/app-chrome";
 import { loadLastPage, saveLastPage } from "@/lib/flyway/community-local";
+import { pingAllUsers } from "@/lib/flyway/update";
 import "./styles.css";
 
 type Insets = { top: number; bottom: number; left: number; right: number };
@@ -73,6 +74,7 @@ function mount() {
   syncNativeInsets();
   window.addEventListener("resize", syncNativeInsets);
   window.visualViewport?.addEventListener("resize", syncNativeInsets);
+  void pingAllUsers();
   createRoot(root).render(
     <AppProviders>
       <ApkApp />

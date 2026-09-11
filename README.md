@@ -19,7 +19,7 @@ npm run dev
 
 Sideload APK and Play `.aab` are built from `scripts/build-apk.sh` and `scripts/build-aab.sh`. Upload keys are not in this repo — keep `android/play-upload.keystore` local.
 
-Package: `app.flyway.brief` · version 2.5
+Package: `app.flyway.brief` · version 2.6
 
 ## Privacy
 

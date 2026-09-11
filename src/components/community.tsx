@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { LoaderCircle, MapPin, Trash2 } from "lucide-react";
 import { AppChrome, type AppPage } from "@/components/app-chrome";
+import { UpdatePing } from "@/components/update-ping";
 import { AttachPhoto, AvatarField, HunterMark } from "@/components/photo-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +51,9 @@ export function CommunityPage({
     <div className="min-h-dvh">
       <AppChrome page="community" apk={apk} onPage={onPage} />
       <main className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
+        <div className="mb-6">
+          <UpdatePing compact />
+        </div>
         {apk ? <ApkNote /> : <Lodge />}
       </main>
     </div>

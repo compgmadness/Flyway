@@ -1,6 +1,7 @@
 import { Download, Images, Share2, Shield, Smartphone } from "lucide-react";
 import { useMemo, useState } from "react";
 import { AppChrome } from "@/components/app-chrome";
+import { UpdatePing } from "@/components/update-ping";
 import { Button } from "@/components/ui/button";
 import { placeFromSearch, placeSearch } from "@/lib/flyway/places";
 import { shareApp } from "@/lib/flyway/share-app";
@@ -28,6 +29,9 @@ export function GetAppPage() {
     <div className="min-h-dvh">
       <AppChrome page="get" />
       <main className="mx-auto max-w-lg px-4 py-8 sm:px-6 sm:py-12">
+        <div className="mb-6">
+          <UpdatePing />
+        </div>
         <p className="text-xs font-medium tracking-widest text-subtle uppercase">
           Send this to testers
         </p>

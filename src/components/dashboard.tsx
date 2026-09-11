@@ -25,6 +25,7 @@ import type { HuntBrief, HuntRating, Place } from "@/lib/flyway/types";
 import { loadNorthWatch } from "@/lib/flyway/push-watch";
 import { cn } from "@/lib/utils";
 import { applyHarvest, harvestsForPlace, subscribeHarvests } from "@/lib/flyway/harvest";
+import { UpdatePing } from "@/components/update-ping";
 
 const LOC_KEY = "flyway:location";
 const RECENTS_KEY = "flyway:recents";
@@ -222,6 +223,9 @@ export function Dashboard({
       />
 
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
+        <div className="mb-6">
+          <UpdatePing />
+        </div>
         {!brief.data && brief.isLoading ? <BriefSkeleton /> : null}
         {brief.isError && !brief.data ? (
           <ErrorPanel
