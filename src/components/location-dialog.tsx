@@ -1,56 +1,10 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { LoaderCircle, MapPin, Navigation, Search, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FEATURED_SPOTS } from "@/lib/flyway/places";
+import { featuredByFlyway, reverseGeocode, searchUsPlaces } from "@/lib/flyway/places";
 import type { Place } from "@/lib/flyway/types";
-
-type GeoHit = {
-  id: number;
-  name: string;
-  latitude: number;
-  longitude: number;
-  admin1?: string;
-  country?: string;
-  country_code?: string;
-};
-
-async function searchPlaces(q: string): Promise<Place[]> {
-  const url = new URL("https://geocoding-api.open-meteo.com/v1/search");
-  url.searchParams.set("name", q);
-  url.searchParams.set("count", "7");
-  url.searchParams.set("language", "en");
-  url.searchParams.set("format", "json");
-  const res = await fetch(url);
-  if (!res.ok) return [];
-  const body = (await res.json()) as { results?: GeoHit[] };
-  return (body.results ?? []).map((r) => ({
-    name: r.name,
-    lat: r.latitude,
-    lon: r.longitude,
-    region: r.admin1 ?? r.country,
-  }));
-}
-
-async function reverseGeocode(lat: number, lon: number): Promise<Place> {
-  const url = new URL("https://geocoding-api.open-meteo.com/v1/reverse");
-  url.searchParams.set("latitude", String(lat));
-  url.searchParams.set("longitude", String(lon));
-  url.searchParams.set("language", "en");
-  url.searchParams.set("format", "json");
-  const res = await fetch(url);
-  if (!res.ok) return { name: "My location", lat, lon };
-  const body = (await res.json()) as { results?: GeoHit[] };
-  const r = body.results?.[0];
-  if (!r) return { name: "My location", lat, lon };
-  return {
-    name: r.name,
-    lat: r.latitude,
-    lon: r.longitude,
-    region: r.admin1 ?? r.country,
-  };
-}
 
 export function LocationDialog({
   open,
@@ -68,6 +22,7 @@ export function LocationDialog({
   const [searching, setSearching] = useState(false);
   const [geoError, setGeoError] = useState<string | null>(null);
   const [geoBusy, setGeoBusy] = useState(false);
+  const flyways = featuredByFlyway();
 
   useEffect(() => {
     const q = query.trim();
@@ -78,7 +33,7 @@ export function LocationDialog({
     let cancelled = false;
     setSearching(true);
     const t = window.setTimeout(() => {
-      void searchPlaces(q)
+      void searchUsPlaces(q)
         .then((rows) => {
           if (!cancelled) setHits(rows);
         })
@@ -91,15 +46,6 @@ export function LocationDialog({
       window.clearTimeout(t);
     };
   }, [query]);
-
-  const colorado = useMemo(
-    () => FEATURED_SPOTS.filter((s) => s.region === "Colorado"),
-    [],
-  );
-  const classic = useMemo(
-    () => FEATURED_SPOTS.filter((s) => s.region !== "Colorado"),
-    [],
-  );
 
   function pick(place: Place) {
     onSelect(place);
@@ -147,7 +93,7 @@ export function LocationDialog({
                 Hunt location
               </Dialog.Title>
               <Dialog.Description className="mt-1 text-sm text-muted">
-                Search a town or jump to a known flyway marsh.
+                Any town or refuge in the United States. Search, use GPS, or pick a flyway marsh.
               </Dialog.Description>
             </div>
             <Dialog.Close asChild>
@@ -162,7 +108,7 @@ export function LocationDialog({
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search city or refuge"
+              placeholder="Search any U.S. city or refuge"
               className="pl-10"
               autoFocus
             />
@@ -182,9 +128,9 @@ export function LocationDialog({
           {query.trim().length >= 2 ? (
             <ul className="mt-4 space-y-1">
               {searching ? (
-                <li className="px-2 py-3 text-sm text-muted">Searching…</li>
+                <li className="px-2 py-3 text-sm text-muted">Searching the U.S.…</li>
               ) : hits.length === 0 ? (
-                <li className="px-2 py-3 text-sm text-muted">No places found.</li>
+                <li className="px-2 py-3 text-sm text-muted">No U.S. places found.</li>
               ) : (
                 hits.map((hit) => (
                   <li key={`${hit.name}-${hit.lat}`}>
@@ -198,8 +144,11 @@ export function LocationDialog({
               {recents.length > 0 ? (
                 <SpotGroup title="Recent" spots={recents} onPick={pick} />
               ) : null}
-              <SpotGroup title="Colorado" spots={colorado} onPick={pick} />
-              <SpotGroup title="Classic flyway hunts" spots={classic} onPick={pick} />
+              {flyways.map((group) =>
+                group.spots.length ? (
+                  <SpotGroup key={group.id} title={group.label} spots={group.spots} onPick={pick} />
+                ) : null,
+              )}
             </div>
           )}
         </Dialog.Content>

@@ -43,23 +43,55 @@ export function placeShareUrl(place: Place): string {
 }
 
 export const FEATURED_SPOTS: Place[] = [
-  { name: "Pueblo Reservoir", lat: 38.27, lon: -104.73, region: "Colorado" },
-  { name: "Barr Lake", lat: 39.94, lon: -104.75, region: "Colorado" },
-  { name: "South Platte — Fort Morgan", lat: 40.25, lon: -103.8, region: "Colorado" },
-  { name: "Prewitt Reservoir", lat: 40.437, lon: -103.378, region: "Colorado" },
-  { name: "Jumbo Reservoir", lat: 40.91, lon: -102.67, region: "Colorado" },
-  { name: "Jackson Lake", lat: 40.382, lon: -104.09, region: "Colorado" },
-  { name: "San Luis Valley", lat: 37.675, lon: -106.0, region: "Colorado" },
-  { name: "John Martin Reservoir", lat: 38.069, lon: -102.937, region: "Colorado" },
-  { name: "Great Salt Lake", lat: 41.1, lon: -112.5, region: "Utah" },
-  { name: "Sand Lake NWR", lat: 45.75, lon: -98.15, region: "South Dakota" },
-  { name: "Devils Lake", lat: 48.11, lon: -98.86, region: "North Dakota" },
-  { name: "Loess Bluffs NWR", lat: 40.08, lon: -95.23, region: "Missouri" },
-  { name: "Stuttgart", lat: 34.5, lon: -91.55, region: "Arkansas" },
-  { name: "Horicon Marsh", lat: 43.5, lon: -88.63, region: "Wisconsin" },
+  // Pacific
+  { name: "Palmer Hay Flats", lat: 61.54, lon: -149.2, region: "Alaska" },
+  { name: "Puget Sound", lat: 47.61, lon: -122.33, region: "Washington" },
+  { name: "Columbia Basin", lat: 46.9, lon: -119.5, region: "Washington" },
+  { name: "Klamath Basin", lat: 42.22, lon: -121.78, region: "Oregon" },
+  { name: "Summer Lake", lat: 42.97, lon: -120.78, region: "Oregon" },
   { name: "Sacramento Valley", lat: 39.2, lon: -121.9, region: "California" },
-  { name: "Klamath Basin", lat: 42.0, lon: -121.7, region: "Oregon" },
+  { name: "Suisun Marsh", lat: 38.17, lon: -121.98, region: "California" },
+  { name: "San Joaquin Grasslands", lat: 37.18, lon: -120.8, region: "California" },
+  { name: "Salton Sea", lat: 33.3, lon: -115.8, region: "California" },
+  { name: "Great Salt Lake", lat: 41.1, lon: -112.5, region: "Utah" },
+  { name: "Stillwater NWR", lat: 39.5, lon: -118.53, region: "Nevada" },
+  { name: "Willcox Playa", lat: 32.14, lon: -109.83, region: "Arizona" },
+  // Central
+  { name: "Bowdoin NWR", lat: 48.4, lon: -107.67, region: "Montana" },
+  { name: "Devils Lake", lat: 48.11, lon: -98.86, region: "North Dakota" },
+  { name: "Sand Lake NWR", lat: 45.75, lon: -98.15, region: "South Dakota" },
+  { name: "Rainwater Basin", lat: 40.52, lon: -98.37, region: "Nebraska" },
+  { name: "Cheyenne Bottoms", lat: 38.47, lon: -98.66, region: "Kansas" },
+  { name: "Barr Lake", lat: 39.94, lon: -104.75, region: "Colorado" },
+  { name: "Pueblo Reservoir", lat: 38.27, lon: -104.73, region: "Colorado" },
+  { name: "John Martin Reservoir", lat: 38.07, lon: -102.94, region: "Colorado" },
+  { name: "Bosque del Apache", lat: 33.8, lon: -106.89, region: "New Mexico" },
+  { name: "Washita NWR", lat: 35.61, lon: -99.25, region: "Oklahoma" },
+  { name: "Buffalo Lake", lat: 34.9, lon: -102.08, region: "Texas" },
+  { name: "Anahuac NWR", lat: 29.67, lon: -94.55, region: "Texas" },
+  // Mississippi
+  { name: "Agassiz NWR", lat: 48.35, lon: -95.95, region: "Minnesota" },
+  { name: "Horicon Marsh", lat: 43.5, lon: -88.63, region: "Wisconsin" },
+  { name: "Upper Mississippi Pool 9", lat: 43.28, lon: -91.08, region: "Iowa" },
+  { name: "Loess Bluffs NWR", lat: 40.08, lon: -95.23, region: "Missouri" },
+  { name: "Rend Lake", lat: 38.1, lon: -88.97, region: "Illinois" },
+  { name: "Hovey Lake", lat: 37.83, lon: -87.95, region: "Indiana" },
+  { name: "Reelfoot Lake", lat: 36.38, lon: -89.4, region: "Tennessee" },
+  { name: "Stuttgart", lat: 34.5, lon: -91.55, region: "Arkansas" },
+  { name: "Catahoula Lake", lat: 31.52, lon: -92.0, region: "Louisiana" },
+  { name: "Sabine NWR", lat: 29.9, lon: -93.4, region: "Louisiana" },
+  { name: "Wheeler NWR", lat: 34.55, lon: -86.95, region: "Alabama" },
+  // Atlantic
+  { name: "Merrymeeting Bay", lat: 44.0, lon: -69.85, region: "Maine" },
+  { name: "Montezuma", lat: 42.97, lon: -76.7, region: "New York" },
+  { name: "Edwin B. Forsythe", lat: 39.53, lon: -74.33, region: "New Jersey" },
+  { name: "Bombay Hook", lat: 39.22, lon: -75.47, region: "Delaware" },
   { name: "Chesapeake Bay", lat: 38.8, lon: -76.4, region: "Maryland" },
+  { name: "Back Bay", lat: 36.67, lon: -75.92, region: "Virginia" },
+  { name: "Mattamuskeet", lat: 35.51, lon: -76.2, region: "North Carolina" },
+  { name: "Santee NWR", lat: 33.48, lon: -80.48, region: "South Carolina" },
+  { name: "Savannah NWR", lat: 32.19, lon: -81.12, region: "Georgia" },
+  { name: "Lake Okeechobee", lat: 26.93, lon: -80.8, region: "Florida" },
 ];
 
 type CorridorStation = Place & { flyway: FlywayId };
@@ -141,9 +173,9 @@ export const FLYWAY_META: Record<
 };
 
 export function detectFlyway(lon: number): FlywayId {
-  if (lon < -114) return "pacific";
-  if (lon < -97) return "central";
-  if (lon < -84) return "mississippi";
+  if (lon <= -109.5) return "pacific";
+  if (lon <= -96.5) return "central";
+  if (lon <= -84) return "mississippi";
   return "atlantic";
 }
 
@@ -187,4 +219,71 @@ export function upstreamStations(place: Place, flyway: FlywayId): Place[] {
   }
 
   return picked.slice(0, 3).reverse();
+}
+
+type GeoHit = {
+  name: string;
+  latitude: number;
+  longitude: number;
+  admin1?: string;
+  country?: string;
+  country_code?: string;
+};
+
+export async function searchUsPlaces(q: string): Promise<Place[]> {
+  const name = q.trim();
+  if (name.length < 2) return [];
+  const url = new URL("https://geocoding-api.open-meteo.com/v1/search");
+  url.searchParams.set("name", name);
+  url.searchParams.set("count", "12");
+  url.searchParams.set("language", "en");
+  url.searchParams.set("format", "json");
+  url.searchParams.set("countryCode", "US");
+  const res = await fetch(url);
+  if (!res.ok) return [];
+  const body = (await res.json()) as { results?: GeoHit[] };
+  return (body.results ?? [])
+    .filter((r) => !r.country_code || r.country_code.toUpperCase() === "US")
+    .map((r) => ({
+      name: r.name,
+      lat: r.latitude,
+      lon: r.longitude,
+      region: r.admin1 ?? r.country,
+    }));
+}
+
+export async function reverseGeocode(lat: number, lon: number): Promise<Place> {
+  const url = new URL("https://geocoding-api.open-meteo.com/v1/reverse");
+  url.searchParams.set("latitude", String(lat));
+  url.searchParams.set("longitude", String(lon));
+  url.searchParams.set("language", "en");
+  url.searchParams.set("format", "json");
+  const res = await fetch(url);
+  if (!res.ok) return { name: "My location", lat, lon };
+  const body = (await res.json()) as { results?: GeoHit[] };
+  const r = body.results?.[0];
+  if (!r) return { name: "My location", lat, lon };
+  return {
+    name: r.name,
+    lat: r.latitude,
+    lon: r.longitude,
+    region: r.admin1 ?? r.country,
+  };
+}
+
+export function featuredByFlyway(): { id: FlywayId; label: string; spots: Place[] }[] {
+  const groups: Record<FlywayId, Place[]> = {
+    pacific: [],
+    central: [],
+    mississippi: [],
+    atlantic: [],
+  };
+  for (const spot of FEATURED_SPOTS) {
+    groups[detectFlyway(spot.lon)].push(spot);
+  }
+  return (["pacific", "central", "mississippi", "atlantic"] as FlywayId[]).map((id) => ({
+    id,
+    label: FLYWAY_META[id].name,
+    spots: groups[id],
+  }));
 }
